@@ -6,6 +6,13 @@ import QtQuick.Layouts 1.12
 ItemDelegate {
     id: root
 
+    Rectangle {
+        id: rectangleHighlight
+        anchors.fill: parent
+        color: model.modelData.httpStatusCode === 0 ? "#5041cd52" : "transparent"
+        z: -1
+    }
+
     Label {
         id: labelCopied
         anchors.fill: parent
