@@ -52,7 +52,6 @@ void load(ThreadedFinder &finder)
     finder.setTimeout(s.getTimeout());
     finder.setNumberOfThreads(s.getMaxThreads());
     finder.setRequestType(s.getRequestType());
-    qDebug() << s.getRequestType() << s.getRequestUrl();
     finder.setRequestUrl(s.getRequestUrl());
 }
 
@@ -70,6 +69,4 @@ void save(const ThreadedFinder &finder)
     s.setMaxThreads(finder.getNumberOfThreads());
     s.setRequestType(finder.getRequestType());
     s.setRequestUrl(finder.getRequestUrl());
-
-    qDebug() << finder.getRequestType() << finder.getRequestUrl();
 }

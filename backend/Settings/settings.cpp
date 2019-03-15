@@ -128,7 +128,6 @@ QString Settings::getRequestUrl()
 
 void Settings::setRequestUrl(const QString &url)
 {
-    qDebug() << "SET URL:" << requestUrl << url << (requestUrl != url);
     if (requestUrl != url) {
         requestUrl = url;
         setValue("network/advanced/requestUrl", url);
