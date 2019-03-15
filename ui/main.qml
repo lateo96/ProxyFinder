@@ -29,9 +29,9 @@ ApplicationWindow {
         property color iconColor: "transparent"
         Menu {
             title: qsTr("&Tools")
-            MenuItem { text: qsTr("&Advanced network options"); icon.source: "qrc:/images/ic_net_24px.svg"; onTriggered: advancedNetworkConfig.open() }
+            MenuItem { text: qsTr("&Advanced network options"); icon.source: "qrc:/images/network-settings.svg"; icon.color: menuBar.iconColor; onTriggered: advancedNetworkConfig.open() }
             MenuSeparator { }
-            MenuItem { text: qsTr("&Quit"); icon.source: "qrc:/images/ic_close_24px.svg"; onTriggered: appWindow.close() }
+            MenuItem { text: qsTr("&Quit"); icon.source: "qrc:/images/close.svg"; icon.color: menuBar.iconColor; onTriggered: appWindow.close() }
         }
         Menu {
             title: qsTr("&Help")
