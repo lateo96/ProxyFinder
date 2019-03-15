@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 
 Dialog {
@@ -9,6 +10,15 @@ Dialog {
     contentItem: RowLayout {
         BusyIndicator {
             id: busyIndicator
+            Material.accent: "#FB0000"
+            implicitWidth: 128
+            implicitHeight: implicitWidth
+
+            Image {
+                anchors.centerIn: parent
+                source: "qrc:/images/close.svg"
+                sourceSize: "48x48"
+            }
         }
         Label {
             id: labelMsg
