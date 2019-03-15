@@ -30,9 +30,13 @@ Dialog {
                 editable: true
                 from: 100
                 to: 10000
-                value: 2000
+                value: appManager.settings.timeout
                 stepSize: 100
                 Layout.fillWidth: true
+
+                onValueChanged: {
+                    finder.timeout = value
+                }
             }
         } // ColumnLayout
 
@@ -46,9 +50,13 @@ Dialog {
                 editable: true
                 from: 1
                 to: 1000
-                value: 100
+                value: appManager.settings.maxThreads
                 stepSize: 100
                 Layout.fillWidth: true
+
+                onValueChanged: {
+                    finder.maxThreads = value
+                }
             }
         } // ColumnLayout
 
@@ -60,8 +68,12 @@ Dialog {
             ComboBox {
                 id: comboBoxRequestType
                 model: ["HTTP", "HTTPS", "FTP"]
-                currentIndex: 0
+                currentIndex: appManager.settings.requestType
                 Layout.fillWidth: true
+
+                onCurrentIndexChanged: {
+                    finder.requestType = currentIndex
+                }
             }
         } // ColumnLayout
         ColumnLayout {
@@ -77,9 +89,13 @@ Dialog {
                 CustomTextField {
                     id: textFieldRequestUrl
                     placeholderText: "google.com"
-                    text: "google.com"
+                    text: appManager.settings.requestUrl
                     selectByMouse: true
                     Layout.fillWidth: true
+
+                    onTextChanged: {
+                        finder.requestUrl = text
+                    }
                 }
             }
         } // ColumnLayout

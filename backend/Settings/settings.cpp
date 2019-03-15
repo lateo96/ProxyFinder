@@ -2,7 +2,16 @@
 
 // Begin implementations
 Settings::Settings(QObject *parent) : QSettings(parent) {
+    // Basic
+    getInitialAddress();
+    getFinalAddress();
+    getPort();
 
+    // Advanced
+    getTimeout();
+    getMaxThreads();
+    getRequestType();
+    getRequestUrl();
 }
 
 //! Properties
@@ -14,12 +23,12 @@ QString Settings::getInitialAddress()
     return initialAddress;
 }
 
-void Settings::setInitialAddress(const QString &value)
+void Settings::setInitialAddress(const QString &ip)
 {
-    if (initialAddress != value) {
-        initialAddress = value;
-        setValue("network/basic/initialAddress", initialAddress);
-        emit initialAddressChanged(value);
+    if (initialAddress != ip) {
+        initialAddress = ip;
+        setValue("network/basic/initialAddress", ip);
+        emit initialAddressChanged(ip);
     }
 }
 
@@ -31,12 +40,12 @@ QString Settings::getFinalAddress()
     return finalAddress;
 }
 
-void Settings::setFinalAddress(const QString &value)
+void Settings::setFinalAddress(const QString &ip)
 {
-    if (finalAddress != value) {
-        finalAddress = value;
-        setValue("network/basic/finalAddress", finalAddress);
-        emit finalAddressChanged(value);
+    if (finalAddress != ip) {
+        finalAddress = ip;
+        setValue("network/basic/finalAddress", ip);
+        emit finalAddressChanged(ip);
     }
 }
 
@@ -48,12 +57,12 @@ unsigned short Settings::getPort()
     return port;
 }
 
-void Settings::setPort(unsigned short value)
+void Settings::setPort(unsigned short p)
 {
-    if (port != value) {
-        port = value;
-        setValue("network/basic/port", port);
-        emit portChanged(value);
+    if (port != p) {
+        port = p;
+        setValue("network/basic/port", p);
+        emit portChanged(p);
     }
 }
 
@@ -66,29 +75,29 @@ int Settings::getTimeout()
     return timeout;
 }
 
-void Settings::setTimeout(int value)
+void Settings::setTimeout(int t)
 {
-    if (timeout != value) {
-        timeout = value;
-        setValue("network/advanced/timeout", timeout);
-        emit timeoutChanged(value);
+    if (timeout != t) {
+        timeout = t;
+        setValue("network/advanced/timeout", t);
+        emit timeoutChanged(t);
     }
 }
 
-int Settings::getMaxThreads()
+unsigned int Settings::getMaxThreads()
 {
     if (contains("network/advanced/maxThreads")) {
-        maxThreads = value("network/advanced/maxThreads").toInt();
+        maxThreads = value("network/advanced/maxThreads").toUInt();
     }
     return maxThreads;
 }
 
-void Settings::setMaxThreads(int value)
+void Settings::setMaxThreads(unsigned int n)
 {
-    if (maxThreads != value) {
-        maxThreads = value;
-        setValue("network/advanced/maxThreads", maxThreads);
-        emit maxThreadsChanged(value);
+    if (maxThreads != n) {
+        maxThreads = n;
+        setValue("network/advanced/maxThreads", n);
+        emit maxThreadsChanged(n);
     }
 }
 
@@ -100,12 +109,12 @@ ThreadedFinder::RequestType Settings::getRequestType()
     return requestType;
 }
 
-void Settings::setRequestType(const ThreadedFinder::RequestType &value)
+void Settings::setRequestType(const ThreadedFinder::RequestType &type)
 {
-    if (requestType != value) {
-        requestType = value;
-        setValue("network/advanced/requestType", int(requestType));
-        emit requestTypeChanged(value);
+    if (requestType != type) {
+        requestType = type;
+        setValue("network/advanced/requestType", int(type));
+        emit requestTypeChanged(type);
     }
 }
 
@@ -117,11 +126,12 @@ QString Settings::getRequestUrl()
     return requestUrl;
 }
 
-void Settings::setRequestUrl(const QString &value)
+void Settings::setRequestUrl(const QString &url)
 {
-    if (requestUrl != value) {
-        requestUrl = value;
-        setValue("network/advanced/requestType", requestUrl);
-        emit requestUrlChanged(value);
+    qDebug() << "SET URL:" << requestUrl << url << (requestUrl != url);
+    if (requestUrl != url) {
+        requestUrl = url;
+        setValue("network/advanced/requestUrl", url);
+        emit requestUrlChanged(url);
     }
 }

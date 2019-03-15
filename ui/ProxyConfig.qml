@@ -45,7 +45,7 @@ GroupBox {
             CustomTextField {
                 id: textFieldInitialIP
                 placeholderText: "IP"
-//                text: "10.8.6.0"
+                text: appManager.settings.initialAddress
                 selectByMouse: true
                 Layout.fillWidth: true
 
@@ -71,7 +71,7 @@ GroupBox {
             CustomTextField {
                 id: textFieldFinalIP
                 placeholderText: "IP"
-//                text: "10.8.9.0"
+                text: appManager.settings.finalAddress
                 selectByMouse: true
                 Layout.fillWidth: true
 
@@ -96,7 +96,7 @@ GroupBox {
             CustomTextField {
                 id: textFieldPort
                 placeholderText: "PORT"
-//                text: "3128"
+                text: appManager.settings.port
                 selectByMouse: true
                 inputMethodHints: Qt.ImhDigitsOnly
 

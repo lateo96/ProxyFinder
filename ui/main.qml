@@ -15,6 +15,7 @@ ApplicationWindow {
 
     ApplicationManager {
         id: appManager
+        objectName: "appManager"
     }
 
     onClosing: {

@@ -14,7 +14,7 @@ class Settings : public QSettings
     Q_PROPERTY(int port READ getPort WRITE setPort NOTIFY portChanged)
     // Advanced
     Q_PROPERTY(int timeout READ getTimeout WRITE setTimeout NOTIFY timeoutChanged)
-    Q_PROPERTY(int maxThreads READ getMaxThreads WRITE setMaxThreads NOTIFY maxThreadsChanged)
+    Q_PROPERTY(unsigned maxThreads READ getMaxThreads WRITE setMaxThreads NOTIFY maxThreadsChanged)
     Q_PROPERTY(ThreadedFinder::RequestType requestType READ getRequestType WRITE setRequestType NOTIFY requestTypeChanged)
     Q_PROPERTY(QString requestUrl READ getRequestUrl WRITE setRequestUrl NOTIFY requestUrlChanged)
 
@@ -22,25 +22,25 @@ public:
     explicit Settings(QObject *parent = nullptr);
 
     QString getInitialAddress();
-    void setInitialAddress(const QString &value);
+    void setInitialAddress(const QString &ip);
 
     QString getFinalAddress();
-    void setFinalAddress(const QString &value);
+    void setFinalAddress(const QString &ip);
 
     unsigned short getPort();
-    void setPort(unsigned short value);
+    void setPort(unsigned short p);
 
     int getTimeout();
-    void setTimeout(int value);
+    void setTimeout(int t);
 
-    int getMaxThreads();
-    void setMaxThreads(int value);
+    unsigned int getMaxThreads();
+    void setMaxThreads(unsigned int n);
 
     ThreadedFinder::RequestType getRequestType();
-    void setRequestType(const ThreadedFinder::RequestType &value);
+    void setRequestType(const ThreadedFinder::RequestType &type);
 
     QString getRequestUrl();
-    void setRequestUrl(const QString &value);
+    void setRequestUrl(const QString &url);
 
 signals:
     //! Properties
@@ -49,7 +49,7 @@ signals:
     void portChanged(unsigned short newPort);
     // Advanced
     void timeoutChanged(int newTimeout);
-    void maxThreadsChanged(int newMaxThreads);
+    void maxThreadsChanged(unsigned int newMaxThreads);
     void requestTypeChanged(const ThreadedFinder::RequestType &newRequestType);
     void requestUrlChanged(const QString &newUrl);
 
@@ -61,7 +61,7 @@ private:
 
     // Advanced
     int timeout = 2000;
-    int maxThreads = 100;
+    unsigned int maxThreads = 100;
     ThreadedFinder::RequestType requestType = ThreadedFinder::HTTP;
     QString requestUrl = "google.com";
 };
