@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/ui">
+        <file>main.qml</file>
+        <file>ProxyConfig.qml</file>
+        <file>ButtonScan.qml</file>
+        <file>Report.qml</file>
+        <file>PopupScaning.qml</file>
+        <file>AdvancedNetworkConfig.qml</file>
+        <file>DialogAbout.qml</file>
+        <file>DialogAboutQt.qml</file>
+        <file>DialogConfirmExit.qml</file>
+        <file>ReportDelegate.qml</file>
+        <file>CustomTextField.qml</file>
+    </qresource>
+</RCC>

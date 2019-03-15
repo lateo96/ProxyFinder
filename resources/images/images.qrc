@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>Built_with_Qt_RGB_logo.svg</file>
+        <file>qt_background.png</file>
+        <file>appIcon.png</file>
+        <file>appIcon.svg</file>
+        <file>ic_settings_overscan_24px.svg</file>
+        <file>qt_company_logo_green_rgb.svg</file>
+        <file>qt_logo_green_rgb.svg</file>
+        <file>en.svg</file>
+        <file>es.svg</file>
+        <file>ic_close_24px.svg</file>
+        <file>ic_settings_24px.svg</file>
+        <file>ic_net_24px.svg</file>
+        <file>qt_logo_green_rgb_256x256.png</file>
+    </qresource>
+</RCC>
