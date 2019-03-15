@@ -62,7 +62,7 @@ private:
     // Advanced
     int timeout = 2000;
     int maxThreads = 100;
-    ThreadedFinder::RequestType requestType;
+    ThreadedFinder::RequestType requestType = ThreadedFinder::HTTP;
     QString requestUrl = "google.com";
 };
 
