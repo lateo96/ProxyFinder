@@ -14,6 +14,8 @@ public:
     QString getHostName() const;
     unsigned short getPort() const;
 
+    QThread *thread();
+
 protected:
 
 signals:

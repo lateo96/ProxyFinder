@@ -35,3 +35,8 @@ void ProxyCheckerThreadWrapper::stop()
 {
     paralellThread.terminate();
 }
+
+QThread* ProxyCheckerThreadWrapper::thread()
+{
+    return &paralellThread;
+}
