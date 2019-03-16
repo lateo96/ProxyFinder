@@ -89,6 +89,7 @@ void ThreadedFinder::fillQueue()
 {
     const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
+    launchIndex = initialIP;
     for (unsigned int i = initialIP; i <= finalIP; ++i) {
         queue.enqueue(QHostAddress(i));
     }
@@ -119,9 +120,8 @@ void ThreadedFinder::setupNetworkCheckers()
 
 void ThreadedFinder::launchNetworkCheckers()
 {
-    const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
-    for (launchIndex = initialIP; launchIndex <= finalIP; ++launchIndex) {
+    for (; launchIndex <= finalIP; ++launchIndex) {
         if (queue.isEmpty()) {
             quit();
         }
@@ -154,7 +154,7 @@ void ThreadedFinder::onReplied(QNetworkReply *reply)
     ProxyInfo *info = new ProxyInfo(proxy.hostName(), proxy.port(), httpCode, httpReason);
 
 #ifdef DEBUG
-    qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << "(HTTP: " + QString::number(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()) +", " + reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString() + ")" << httpReason;
+    //qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << "(HTTP: " + QString::number(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()) +", " + reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString() + ")" << httpReason;
 #endif
     fullReport.append(info);
     addInfoToReportUsingFilters(info);
