@@ -16,5 +16,13 @@
         <file>system-language.svg</file>
         <file>window.svg</file>
         <file>close-circular.svg</file>
+        <file>warning.svg</file>
+        <file>done-green.png</file>
+        <file>done-green.svg</file>
+        <file>done-red.png</file>
+        <file>done-red.svg</file>
+        <file>done-yellow.png</file>
+        <file>done-yellow.svg</file>
+        <file>clipboard.svg</file>
     </qresource>
 </RCC>
