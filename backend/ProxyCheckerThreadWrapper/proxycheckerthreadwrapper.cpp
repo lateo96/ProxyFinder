@@ -6,6 +6,7 @@ ProxyCheckerThreadWrapper::ProxyCheckerThreadWrapper(const QNetworkProxy &proxy,
     proxyChecker.moveToThread(&paralellThread);
     connect(this, &ProxyCheckerThreadWrapper::ready, &proxyChecker, &ProxyChecker::start);
     connect(&proxyChecker, &ProxyChecker::finished, this, &ProxyCheckerThreadWrapper::replied);
+    connect(&proxyChecker, &ProxyChecker::finished, &paralellThread, &QThread::quit);
 }
 
 ProxyCheckerThreadWrapper::~ProxyCheckerThreadWrapper()
