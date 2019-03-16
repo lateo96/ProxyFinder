@@ -36,7 +36,7 @@ ItemDelegate {
             spacing: 10
 
             Image {
-                source: "qrc:/images/clipboard.svg"
+                source: "qrc:/images/clipboard_" + (Material.theme === Material.Light ? "light" : "dark") + ".svg"
                 sourceSize: Qt.size(labelCopied.height, labelCopied.height)
             }
 
@@ -44,7 +44,7 @@ ItemDelegate {
                 id: labelCopied
                 text: qsTr("IP copied")
                 font.pointSize: Qt.application.font.pointSize * 1.5
-                color: Material.primaryHighlightedTextColor
+                color: Material.theme === Material.Light ? Material.primaryHighlightedTextColor : Material.background
                 horizontalAlignment: Label.AlignHCenter
                 verticalAlignment: Label.AlignVCenter
             }

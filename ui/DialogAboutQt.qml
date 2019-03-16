@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 
 Dialog {
@@ -10,7 +11,7 @@ Dialog {
         spacing: 20
 
         Image {
-            source: "qrc:/images/qt_company_logo_green_rgb.svg"
+            source: "qrc:/images/qt_company_logo_green_rgb_" + (Material.theme === Material.Light ? "light" : "dark") + ".svg"
             sourceSize: Qt.size(72, 72)
             fillMode: Image.PreserveAspectFit
 

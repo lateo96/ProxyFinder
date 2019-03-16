@@ -31,47 +31,50 @@ Page {
                 Layout.fillWidth: true
             }
         }
-
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: "#DDDDDD"
-        }
     }
 
-    ScrollView {
-        id: scrollView
+    Rectangle {
+        id: rectangleScrollViewContainer
         anchors.fill: parent
-        clip: true
+        height: 1
+        color: "#50888888"
 
-        background: Image {
-            fillMode: Image.PreserveAspectCrop
-            source: "qrc:/images/qt_background.png"
-        }
+        ScrollView {
+            id: scrollView
+            anchors.fill: parent
+            anchors.margins: 1
+            clip: true
 
-        ListView {
-            id: list
-            width: parent.width
-            model: 0
-
-            delegate: ReportDelegate {
-                width: root.width
+            background: Image {
+                fillMode: Image.PreserveAspectCrop
+                source: "qrc:/images/qt_background_" + (Material.theme === Material.Light ? "light" : "dark") + ".png"
+                opacity: 0.75
             }
 
-            Timer {
-                id: timerReportUpdater
-                interval: 500
-                repeat: true
-                running: finder.scaning
+            ListView {
+                id: list
+                width: parent.width
+                model: 0
 
-                onRunningChanged: {
-                    list.model = finder.reportModel
+                delegate: ReportDelegate {
+                    width: root.width
                 }
 
-                onTriggered: {
-                    list.model = finder.reportModel
+                Timer {
+                    id: timerReportUpdater
+                    interval: 500
+                    repeat: true
+                    running: finder.scaning
+
+                    onRunningChanged: {
+                        list.model = finder.reportModel
+                    }
+
+                    onTriggered: {
+                        list.model = finder.reportModel
+                    }
                 }
-            }
-        } // ListView
-    } // ScrollView
+            } // ListView
+        } // ScrollView
+    } // Rectangle
 }
