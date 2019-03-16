@@ -8,7 +8,7 @@ class ProxyCheckerThreadWrapper : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyCheckerThreadWrapper(const QNetworkProxy &proxy, const QNetworkConfiguration &config = QNetworkConfigurationManager().defaultConfiguration(), QObject *parent = nullptr);
+    explicit ProxyCheckerThreadWrapper(const QNetworkProxy &proxy, int connectionTimeout = 2000, QObject *parent = nullptr);
     ~ProxyCheckerThreadWrapper();
 
     QString getHostName() const;

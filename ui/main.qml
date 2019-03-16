@@ -13,11 +13,26 @@ ApplicationWindow {
     height: 580
     title: Qt.application.name + ' ' + Qt.application.version
 
+    //! Backend
     ApplicationManager {
         id: appManager
         objectName: "appManager"
     }
 
+    //! Functions
+    function scan() {
+        progress.Material.accent = Material.Green
+        finder.initialAddress = groupBoxConfigureProxy.initialIP
+        finder.finalAddress = groupBoxConfigureProxy.finalIP
+        finder.port = ~~groupBoxConfigureProxy.port
+        finder.maxThreads = advancedNetworkConfig.maxThreads
+        finder.timeout = advancedNetworkConfig.timeout
+        finder.requestType = advancedNetworkConfig.requestType
+        finder.requestUrl = advancedNetworkConfig.requestUrl
+        finder.start()
+    }
+
+    //! Events
     onClosing: {
         if (finder.scaning) {
             dialogConfirmExit.open()
@@ -25,11 +40,12 @@ ApplicationWindow {
         }
     }
 
+    //! Menu and status bars
     menuBar: MenuBar {
         property color iconColor: "transparent"
         Menu {
             title: qsTr("&Tools")
-            MenuItem { text: qsTr("&Advanced network options"); icon.source: "qrc:/images/network-settings.svg"; icon.color: menuBar.iconColor; onTriggered: advancedNetworkConfig.open() }
+            MenuItem { text: qsTr("&Advanced network options"); enabled: !finder.scaning; icon.source: "qrc:/images/network-settings.svg"; icon.color: menuBar.iconColor; onTriggered: advancedNetworkConfig.open() }
             MenuSeparator { }
             MenuItem { text: qsTr("&Quit"); icon.source: "qrc:/images/close.svg"; icon.color: menuBar.iconColor; onTriggered: appWindow.close() }
         }
@@ -65,6 +81,11 @@ ApplicationWindow {
         }
     }
 
+    footer: CustomStatusBar {
+        id: statusBarCustom
+    }
+
+    //! Content
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
@@ -76,7 +97,7 @@ ApplicationWindow {
 
             ProxyConfig {
                 id: groupBoxConfigureProxy
-                enabled: !finder.scaning
+                enabled: !finder.running
                 clip: true
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignTop
@@ -86,18 +107,15 @@ ApplicationWindow {
                 id: buttonScan
                 text: qsTr("Scan")
                 highlighted: true
-                enabled: !finder.scaning && groupBoxConfigureProxy.valid
+                enabled: !finder.running && groupBoxConfigureProxy.valid
                 Layout.fillWidth: true
 
                 onClicked: {
-                    finder.initialAddress = groupBoxConfigureProxy.initialIP
-                    finder.finalAddress = groupBoxConfigureProxy.finalIP
-                    finder.port = ~~groupBoxConfigureProxy.port
-                    finder.maxThreads = advancedNetworkConfig.maxThreads
-                    finder.timeout = advancedNetworkConfig.timeout
-                    finder.requestType = advancedNetworkConfig.requestType
-                    finder.requestUrl = advancedNetworkConfig.requestUrl
-                    finder.start()
+                    if (finder.addressesAreInverted()) {
+                        dialogReorderIPs.open()
+                    } else {
+                        scan()
+                    }
                 }
 
                 onEnabledChanged: {
@@ -109,32 +127,42 @@ ApplicationWindow {
 
             ProgressBar {
                 id: progress
-                indeterminate: value === 0 && buttonScan.enabled
-                Material.accent: buttonScan.enabled || finder.scaning ? appWindow.Material.accent : Material.Pink
+                indeterminate: buttonScan.enabled
+                Material.accent: !groupBoxConfigureProxy.valid ? Material.Pink : appWindow.Material.accent
                 Layout.fillWidth: true
+
+                property bool noAnimate: false
 
                 onValueChanged: {
                     if (value === 1.0) {
-                        value = 0;
+                        noAnimate = true
+                        value = 0
+                        noAnimate = false
+                        Material.accent = appWindow.Material.accent
                     }
                 }
 
-                Behavior on value { NumberAnimation { duration: 100 } }
+                Behavior on value { NumberAnimation { duration: progress.noAnimate ? 0 : 100 } }
 
                 Timer {
                     id: timerProgressUpdater
                     interval: 100
                     repeat: true
-                    running: finder.scaning
+                    running: finder.settingCheckers
 
                     onRunningChanged: {
                         if (!running) {
                             progress.value = 1
+                            if (finder.running) {
+                                running = finder.running
+                            }
                         }
                     }
 
                     onTriggered: {
                         progress.value = finder.progress
+                        statusBarCustom.progressTotal = finder.progressTotal
+                        statusBarCustom.progressPartial = finder.progressPartial
                     }
                 }
             } // ProgressBar
@@ -156,22 +184,26 @@ ApplicationWindow {
         }
     } // ColumnLayout (root)
 
+    //! Dialogs
     AdvancedNetworkConfig {
         id: advancedNetworkConfig
         anchors.centerIn: Overlay.overlay
         modal: true
+        focus: true
     }
 
     DialogAbout {
         id: dialogAbout
         anchors.centerIn: Overlay.overlay
         modal: true
+        focus: true
     }
 
     DialogAboutQt {
         id: dialogAboutQt
         anchors.centerIn: Overlay.overlay
         modal: true
+        focus: true
     }
 
     // TODO: Auto-closing this dialog is done when the "SCAN" button is enabled,
@@ -180,6 +212,7 @@ ApplicationWindow {
         id: dialogConfirmExit
         anchors.centerIn: Overlay.overlay
         modal: true
+        focus: true
 
         onAccepted: {
             // FIX: The app crashes
@@ -189,9 +222,22 @@ ApplicationWindow {
         }
     }
 
+    DialogReorderIPs {
+        id: dialogReorderIPs
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+
+        onAccepted: {
+            groupBoxConfigureProxy.swapIPs()
+            scan()
+        }
+    }
+
     PopupScaning {
         anchors.centerIn: Overlay.overlay
         //        visible: true
         modal: true
+        focus: true
     }
 }

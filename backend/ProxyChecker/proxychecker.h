@@ -16,7 +16,7 @@ class ProxyChecker : public QNetworkAccessManager
     Q_OBJECT
 
 public:
-    explicit ProxyChecker(const QNetworkProxy &proxy, const QNetworkConfiguration &config = QNetworkConfigurationManager().defaultConfiguration(), QObject *parent = nullptr);
+    explicit ProxyChecker(const QNetworkProxy &proxy, int connectionTimeout = 200, QObject *parent = nullptr);
 
     QString getHostName() const;
     unsigned short getPort() const;
@@ -28,6 +28,7 @@ public slots:
     void stop();
 
 private:
+    int timeout = 2000;
 };
 
 #endif // PROXYCHECKER_H

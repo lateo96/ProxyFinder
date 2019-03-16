@@ -2,13 +2,12 @@
 #include <QDebug>
 #include <QEventLoop>
 
-ProxyChecker::ProxyChecker(const QNetworkProxy &proxy, const QNetworkConfiguration &config, QObject *parent) : QNetworkAccessManager(parent)
+ProxyChecker::ProxyChecker(const QNetworkProxy &proxy, int connectionTimeout, QObject *parent) : QNetworkAccessManager(parent)
 {
     setProxy(proxy);
-    setConfiguration(config);
-    if (config.connectTimeout() < 100) {
-        qWarning() << "ProxyChecker:" <<
-                      "The configured network timeout is less than 100 ms";
+    timeout = connectionTimeout;
+    if (timeout < 100) {
+        qWarning() << "ProxyChecker: The configured network timeout is less than 100 ms";
     }
 }
 
@@ -28,13 +27,12 @@ void ProxyChecker::start(const QNetworkRequest &request)
 
     QTimer t;
     t.setSingleShot(true);
-    t.setInterval(configuration().connectTimeout());
 
     QEventLoop loop;
     connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 
-    t.start();
+    t.start(timeout);
     loop.exec();
 
     if (t.isActive()) {

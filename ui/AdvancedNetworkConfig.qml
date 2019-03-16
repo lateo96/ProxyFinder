@@ -33,6 +33,7 @@ Dialog {
                 value: appManager.settings.timeout
                 stepSize: 100
                 Layout.fillWidth: true
+                focus: true
 
                 onValueChanged: {
                     finder.timeout = value

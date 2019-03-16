@@ -17,7 +17,6 @@ Button {
     background: Rectangle {
         implicitWidth: 64
         implicitHeight: root.Material.buttonHeight
-        //        height: width
 
         radius: width/2
         color: !root.enabled ? root.Material.buttonDisabledColor :

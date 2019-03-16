@@ -41,6 +41,7 @@ Dialog {
                 wrapMode: Label.WordWrap
 
                 Layout.preferredWidth: 300
+                Layout.alignment: Qt.AlignHCenter
             }
         } // ColumnLayout
     } // ColumnLayout

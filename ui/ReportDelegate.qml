@@ -13,19 +13,11 @@ ItemDelegate {
         z: -1
     }
 
-    Label {
-        id: labelCopied
+    Rectangle {
+        id: rectangleCopied
         anchors.fill: parent
-        text: qsTr("IP copied")
-        font.pointSize: Qt.application.font.pointSize * 1.5
-        color: Material.primaryHighlightedTextColor
+        color: Material.accent
         opacity: 0.0
-        horizontalAlignment: Label.AlignHCenter
-        verticalAlignment: Label.AlignVCenter
-
-        background: Rectangle {
-            color: Material.accent
-        }
 
         SequentialAnimation on opacity {
             id: animationCopy
@@ -37,6 +29,25 @@ ItemDelegate {
 
         function flash() {
             animationCopy.start()
+        }
+
+        RowLayout {
+            anchors.centerIn: parent
+            spacing: 10
+
+            Image {
+                source: "qrc:/images/clipboard.svg"
+                sourceSize: Qt.size(labelCopied.height, labelCopied.height)
+            }
+
+            Label {
+                id: labelCopied
+                text: qsTr("IP copied")
+                font.pointSize: Qt.application.font.pointSize * 1.5
+                color: Material.primaryHighlightedTextColor
+                horizontalAlignment: Label.AlignHCenter
+                verticalAlignment: Label.AlignVCenter
+            }
         }
     }
 
@@ -62,6 +73,6 @@ ItemDelegate {
 
     onClicked: {
         appManager.toClipboard(labelIP.text)
-        labelCopied.flash()
+        rectangleCopied.flash()
     }
 } // delegate (ItemDelegate)

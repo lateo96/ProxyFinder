@@ -19,9 +19,14 @@ class ThreadedFinder : public QThread
     Q_PROPERTY(QString requestUrl READ getRequestUrl WRITE setRequestUrl NOTIFY requestUrlChanged)
     Q_PROPERTY(QList<QObject *> reportModel READ getReport NOTIFY reportChanged)
     Q_PROPERTY(QVariantList filteredCodes READ getFilteredCodes NOTIFY filteredCodesChanged)
+    Q_PROPERTY(bool running READ getRunning NOTIFY runningChanged)
+    Q_PROPERTY(bool gettingAddresses READ getGettingAddresses NOTIFY gettingAddressesChanged)
+    Q_PROPERTY(bool settingCheckers READ getSettingCheckers NOTIFY settingCheckersChanged)
     Q_PROPERTY(bool scaning READ getScaning NOTIFY scaningChanged)
     Q_PROPERTY(bool validInitialAddress READ getValidInitialAddress NOTIFY validInitialAddressChanged)
     Q_PROPERTY(bool validFinalAddress READ getValidFinalAddress NOTIFY validFinalAddressChanged)
+    Q_PROPERTY(double progressTotal READ getProgressTotal NOTIFY progressTotalChanged)
+    Q_PROPERTY(double progressPartial READ getProgressPartial NOTIFY progressPartialChanged)
     Q_PROPERTY(double progress READ getProgress NOTIFY progressChanged)
 
 public:
@@ -78,6 +83,21 @@ public:
     double getProgress() const;
     void setProgress(double value);
 
+    bool getSettingCheckers() const;
+    void setSettingCheckers(bool value);
+
+    bool getRunning() const;
+    void setRunning(bool value);
+
+    bool getGettingAddresses() const;
+    void setGettingAddresses(bool value);
+
+    int getProgressTotal() const;
+    void setProgressTotal(int value);
+
+    int getProgressPartial() const;
+    void setProgressPartial(int value);
+
 signals:
     void replied(QNetworkReply *reply);
     void singleCheckFinished();
@@ -93,15 +113,21 @@ signals:
     void filteredCodesChanged(const QVariantList &updatedFilters);
     void initialAddressStringChanged(const QString &newAddressString);
     void finalAddressStringChanged(const QString &newAddressString);
+    void runningChanged(bool isRunning);
+    void gettingAddressesChanged(bool isGettingAddresses);
+    void settingCheckersChanged(bool isSettingCheckers);
     void scaningChanged(bool isScaning);
     void validInitialAddressChanged(bool isValid);
     void validFinalAddressChanged(bool isValid);
+    void progressTotalChanged(int total);
+    void progressPartialChanged(int partial);
     void progressChanged(double updatedProgress);
 
 public slots:
     void updateReport();
     void clean();
     void updateProgress();
+    bool addressesAreInverted();
 
 private slots:
     void fillQueue();
@@ -120,11 +146,17 @@ private:
     QHostAddress initialAddress, finalAddress;
     QString initialAddressString, finalAddressString;
     unsigned short port = 0;
+
+    bool running = false;
+    bool gettingAddresses = false;
+    bool settingCheckers = false;
     bool scaning = false;
 
     unsigned int launchIndex;
     bool validInitialAddress = false;
     bool validFinalAddress = false;
+    int progressTotal = 1;
+    int progressPartial = 0;
     double progress = 0.0;
     int totalAddressesToScan = 1;
     QNetworkProxy::ProxyType requestTypeToProxyType[3] = { QNetworkProxy::HttpCachingProxy, QNetworkProxy::HttpCachingProxy, QNetworkProxy::FtpCachingProxy };

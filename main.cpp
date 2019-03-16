@@ -10,6 +10,8 @@
 void load(ThreadedFinder &finder);
 void save(const ThreadedFinder &finder);
 
+//! TODO: Caught exceptions to allow saving even if the app crashes
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

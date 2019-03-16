@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.12
 GroupBox {
     id: root
 
+    //! Properties
     property alias initialIP: textFieldInitialIP.text
     property alias finalIP: textFieldFinalIP.text
     property alias port: textFieldPort.text
@@ -16,6 +17,14 @@ GroupBox {
     property bool validFinalIP: finder.validFinalAddress && (finalIP.split('.').length === 4)
     property bool validPort: port > 0x0000 && port <= 0xFFFF
 
+    //! Functions
+    function swapIPs() {
+        var hold = initialIP
+        initialIP = finalIP
+        finalIP = hold
+    }
+
+    // UI
     label: SwitchDelegate {
         id: switchConfigureProxy
         text: qsTr("Configure proxy")

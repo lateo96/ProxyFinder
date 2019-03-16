@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QEventLoop>
 
-//#define DEBUG
+#define DEBUG
 
 ThreadedFinder::ThreadedFinder(QObject *parent)
     : QThread (parent)
@@ -55,18 +55,34 @@ void ThreadedFinder::clean()
 
 void ThreadedFinder::updateProgress()
 {
-    setProgress(1 - double(queue.count())/totalAddressesToScan);
+    if (settingCheckers) {
+        setProgressPartial(connectedCheckers.count());
+    } else {
+        setProgressPartial(progressTotal - queue.count());
+    }
+    setProgress(double(progressPartial)/progressTotal);
+}
+
+bool ThreadedFinder::addressesAreInverted()
+{
+    return finalAddress.toIPv4Address() < initialAddress.toIPv4Address();
 }
 
 void ThreadedFinder::run()
 {
+    setRunning(true);
     clean();
-    setScaning(true);
+    setGettingAddresses(true);
     fillQueue();
+    setGettingAddresses(false);
+    setSettingCheckers(true);
     setupNetworkCheckers();
+    setSettingCheckers(false);
+    setScaning(true);
     launchNetworkCheckers();
     exec();
     setScaning(false);
+    setRunning(false);
 }
 
 void ThreadedFinder::fillQueue()
@@ -76,7 +92,7 @@ void ThreadedFinder::fillQueue()
     for (unsigned int i = initialIP; i <= finalIP; ++i) {
         queue.enqueue(QHostAddress(i));
     }
-    totalAddressesToScan = queue.count();
+    setProgressTotal(queue.count());
 }
 
 void ThreadedFinder::setupNetworkCheckers()
@@ -84,17 +100,12 @@ void ThreadedFinder::setupNetworkCheckers()
     const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
     for (unsigned int i = initialIP; i <= finalIP; ++i) {
-        QNetworkProxy p;
-        p.setHostName(QHostAddress(i).toString());
-        p.setPort(port);
-        p.setType(requestTypeToProxyType[requestType]);
-        QNetworkConfiguration c(QNetworkConfigurationManager().defaultConfiguration());
-        c.setConnectTimeout(timeout);
-        ProxyCheckerThreadWrapper *proxyChecker = new ProxyCheckerThreadWrapper(p, c);
+        ProxyCheckerThreadWrapper *proxyChecker = new ProxyCheckerThreadWrapper(QNetworkProxy(requestTypeToProxyType[requestType], QHostAddress(i).toString(), port), timeout);
         connectedCheckers.append(proxyChecker);
+        updateProgress();
         connect(proxyChecker, &ProxyCheckerThreadWrapper::replied, this, &ThreadedFinder::onReplied);
 
-        // Remove the deleted  proxy thread from the containers
+        // Remove the deleted proxy thread from the containers
         connect(proxyChecker, &ProxyCheckerThreadWrapper::destroyed, [=](QObject *obj) {
             connectedCheckers.removeOne(static_cast<ProxyCheckerThreadWrapper*>(obj));
             runningCheckers.removeOne(static_cast<ProxyCheckerThreadWrapper*>(obj));
@@ -121,7 +132,9 @@ void ThreadedFinder::launchNetworkCheckers()
             if (connectedCheckers[j]->getHostName() == QHostAddress(launchIndex).toString()) {
                 ProxyCheckerThreadWrapper *p = connectedCheckers[j];
                 runningCheckers.append(p);
-                p->start(QNetworkRequest(QUrl(requestTypeToProtocolString[requestType] + "://" + requestUrl)));
+                QNetworkRequest request(QUrl(requestTypeToProtocolString[requestType] + "://" + requestUrl));
+                request.setHeader(QNetworkRequest::UserAgentHeader, "Requester");
+                p->start(request);
                 break; // go to the external loop
             }
         }
@@ -141,7 +154,7 @@ void ThreadedFinder::onReplied(QNetworkReply *reply)
     ProxyInfo *info = new ProxyInfo(proxy.hostName(), proxy.port(), httpCode, httpReason);
 
 #ifdef DEBUG
-    qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << httpReason;
+    qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << "(HTTP: " + QString::number(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()) +", " + reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString() + ")" << httpReason;
 #endif
     fullReport.append(info);
     addInfoToReportUsingFilters(info);
@@ -158,6 +171,71 @@ void ThreadedFinder::addInfoToReportUsingFilters(ProxyInfo *info)
             emit reportChanged(report);
             break;
         }
+    }
+}
+
+int ThreadedFinder::getProgressPartial() const
+{
+    return progressPartial;
+}
+
+void ThreadedFinder::setProgressPartial(int value)
+{
+    if (progressPartial != value) {
+        progressPartial = value;
+        emit progressPartialChanged(value);
+    }
+}
+
+int ThreadedFinder::getProgressTotal() const
+{
+    return progressTotal;
+}
+
+void ThreadedFinder::setProgressTotal(int value)
+{
+    if (progressTotal != value) {
+        progressTotal = value;
+        emit progressTotalChanged(value);
+    }
+}
+
+bool ThreadedFinder::getGettingAddresses() const
+{
+    return gettingAddresses;
+}
+
+void ThreadedFinder::setGettingAddresses(bool value)
+{
+    if (gettingAddresses != value) {
+        gettingAddresses = value;
+        emit gettingAddressesChanged(value);
+    }
+}
+
+bool ThreadedFinder::getRunning() const
+{
+    return running;
+}
+
+void ThreadedFinder::setRunning(bool value)
+{
+    if (running != value) {
+        running = value;
+        emit runningChanged(value);
+    }
+}
+
+bool ThreadedFinder::getSettingCheckers() const
+{
+    return settingCheckers;
+}
+
+void ThreadedFinder::setSettingCheckers(bool value)
+{
+    if (settingCheckers != value) {
+        settingCheckers = value;
+        emit settingCheckersChanged(value);
     }
 }
 

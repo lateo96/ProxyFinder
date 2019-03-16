@@ -6,8 +6,11 @@ import QtQuick.Layouts 1.12
 Dialog {
     id: root
 
+    title: qsTr("Confirm exit")
     standardButtons: Dialog.Yes | Dialog.No
-    contentItem: RowLayout {
+
+    RowLayout {
+        spacing: 10
         BusyIndicator {
             id: busyIndicator
             Material.accent: "#FB0000"
@@ -27,5 +30,5 @@ Dialog {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-    }
+    } // RowLayout
 }

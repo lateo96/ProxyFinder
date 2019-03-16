@@ -11,5 +11,7 @@
         <file>DialogConfirmExit.qml</file>
         <file>ReportDelegate.qml</file>
         <file>CustomTextField.qml</file>
+        <file>DialogReorderIPs.qml</file>
+        <file>CustomStatusBar.qml</file>
     </qresource>
 </RCC>

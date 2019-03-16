@@ -1,7 +1,7 @@
 #include "proxycheckerthreadwrapper.h"
 
-ProxyCheckerThreadWrapper::ProxyCheckerThreadWrapper(const QNetworkProxy &proxy, const QNetworkConfiguration &config, QObject *parent) :
-    QObject(parent), proxyChecker(proxy, config, parent)
+ProxyCheckerThreadWrapper::ProxyCheckerThreadWrapper(const QNetworkProxy &proxy, int connectionTimeout, QObject *parent) :
+    QObject(parent), proxyChecker(proxy, connectionTimeout, parent)
 {
     proxyChecker.moveToThread(&paralellThread);
     connect(this, &ProxyCheckerThreadWrapper::ready, &proxyChecker, &ProxyChecker::start);
