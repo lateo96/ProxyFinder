@@ -18,7 +18,8 @@ HEADERS += \
     backend/ProxyInfo/proxyinfo.h \
     backend/ThreadedFinder/threadedfinder.h \
     backend/ApplicationManager/applicationmanager.h \
-    backend/Settings/settings.h
+    backend/Settings/settings.h \
+    backend/models/ReportModel/reportmodel.h
 
 SOURCES += \
         main.cpp \
@@ -27,7 +28,8 @@ SOURCES += \
     backend/ProxyInfo/proxyinfo.cpp \
     backend/ThreadedFinder/threadedfinder.cpp \
     backend/ApplicationManager/applicationmanager.cpp \
-    backend/Settings/settings.cpp
+    backend/Settings/settings.cpp \
+    backend/models/ReportModel/reportmodel.cpp
 
 RESOURCES += ui/qml.qrc \
     resources/qt.qrc \
