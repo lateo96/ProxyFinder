@@ -4,7 +4,7 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 
 // My imports
-import ProxyFinder 0.1
+import ProxyFinder 0.2
 
 ApplicationWindow {
     id: appWindow
@@ -12,6 +12,36 @@ ApplicationWindow {
     width: 640
     height: 580
     title: Qt.application.name + ' ' + Qt.application.version
+
+    //! Properties
+    property int status: finder.status
+    onStatusChanged: {
+        switch (status) {
+        case 0: // ReadyFirstTime
+            console.log('ReadyFirstTime')
+            break
+        case 1: // GettingAddresses
+            console.log('GettingAddresses')
+            break
+        case 2: // SettingCheckers
+            console.log('SettingCheckers')
+            progress.Material.accent = Material.Green
+            break
+        case 3: // Scaning
+            console.log('Scaning')
+            progress.noAnimate = true
+            progress.value = 0
+            progress.noAnimate = false
+            progress.Material.accent = appWindow.Material.accent
+            break
+        case 4: // FinishedAndReady
+            console.log('FinishedAndReady')
+            finished()
+            break
+        case 5: // AbortedAndReady
+            console.log('AbortedAndReady')
+        }
+    }
 
     //! Backend
     ApplicationManager {
@@ -21,7 +51,6 @@ ApplicationWindow {
 
     //! Functions
     function scan() {
-        progress.Material.accent = Material.Green
         statusBarCustom.clearMessage()
         finder.initialAddress = groupBoxConfigureProxy.initialIP
         finder.finalAddress = groupBoxConfigureProxy.finalIP
@@ -45,7 +74,7 @@ ApplicationWindow {
     }
 
     onFinished: {
-        statusBarCustom.showMessage("qrc:/images/done-green.svg", qsTr("Done!"), 10000)
+        //statusBarCustom.showMessage("qrc:/images/done-green.svg", qsTr("Done!"), 10000)
         appWindow.alert(0)
     }
 
@@ -142,42 +171,18 @@ ApplicationWindow {
 
                 property bool noAnimate: false
 
-                onValueChanged: {
-                    if (value === 1.0) {
-                        noAnimate = true
-                        value = 0
-                        noAnimate = false
-                        Material.accent = appWindow.Material.accent
-                    }
-                }
-
                 Behavior on value { NumberAnimation { duration: progress.noAnimate ? 0 : 100 } }
 
                 Timer {
                     id: timerProgressUpdater
                     interval: 100
                     repeat: true
-                    running: finder.settingCheckers
-
-                    onRunningChanged: {
-                        if (!running) {
-                            progress.value = 1
-                            if (finder.running) {
-                                running = finder.running
-                            } else {
-                                finished()
-                            }
-                        }
-                    }
+                    running: finder.running
 
                     onTriggered: {
-                        if (finder.running) {
-                            progress.value = finder.progress
-                            statusBarCustom.progressTotal = finder.progressTotal
-                            statusBarCustom.progressPartial = finder.progressPartial
-                        } else {
-                            stop()
-                        }
+                        progress.value = finder.progress
+                        statusBarCustom.progressTotal = finder.progressTotal
+                        statusBarCustom.progressPartial = finder.progressPartial
                     }
                 }
             } // ProgressBar
