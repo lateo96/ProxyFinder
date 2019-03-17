@@ -31,6 +31,8 @@ Page {
 
     RowLayout {
         id: rowLayoutRoot
+        anchors.fill: parent
+
         RowLayout {
             id: rowLayoutStatus
             Layout.fillHeight: true
@@ -77,7 +79,8 @@ Page {
         RowLayout {
             id: rowLayoutMessage
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignLeft
+            Layout.alignment: Qt.AlignRight
+            Layout.preferredWidth: 200
 
             function clearMessage(timeout) {
                 if (timerClearMsg.running) {
