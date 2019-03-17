@@ -13,7 +13,6 @@ Dialog {
     enum RequestType { HTTP, HTTPS, FTP }
 
     title: qsTr("Advanced network options")
-    standardButtons: Dialog.Close
 
     GridLayout {
         columns: 2
