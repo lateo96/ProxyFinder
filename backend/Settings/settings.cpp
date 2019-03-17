@@ -12,6 +12,9 @@ Settings::Settings(QObject *parent) : QSettings(parent) {
     getMaxThreads();
     getRequestType();
     getRequestUrl();
+
+    // Preferences
+    getTheme();
 }
 
 //! Properties
@@ -132,5 +135,22 @@ void Settings::setRequestUrl(const QString &url)
         requestUrl = url;
         setValue("network/advanced/requestUrl", url);
         emit requestUrlChanged(url);
+    }
+}
+
+int Settings::getTheme()
+{
+    if (contains("preferences/style/theme")) {
+        theme = value("preferences/style/theme").toInt();
+    }
+    return theme;
+}
+
+void Settings::setTheme(int newTheme)
+{
+    if (theme != newTheme) {
+        theme = newTheme;
+        setValue("preferences/style/theme", newTheme);
+        emit themeChanged(newTheme);
     }
 }
