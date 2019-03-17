@@ -22,6 +22,7 @@ ApplicationWindow {
     //! Functions
     function scan() {
         progress.Material.accent = Material.Green
+        statusBarCustom.clearMessage()
         finder.initialAddress = groupBoxConfigureProxy.initialIP
         finder.finalAddress = groupBoxConfigureProxy.finalIP
         finder.port = ~~groupBoxConfigureProxy.port
@@ -32,12 +33,20 @@ ApplicationWindow {
         finder.start()
     }
 
+    //! Signals
+    signal finished()
+
     //! Events
     onClosing: {
         if (finder.scaning) {
             dialogConfirmExit.open()
             close.accepted = false
         }
+    }
+
+    onFinished: {
+        statusBarCustom.showMessage("qrc:/images/done-green.svg", qsTr("Done!"), 10000)
+        appWindow.alert(0)
     }
 
     //! Menu and status bars
@@ -155,14 +164,20 @@ ApplicationWindow {
                             progress.value = 1
                             if (finder.running) {
                                 running = finder.running
+                            } else {
+                                finished()
                             }
                         }
                     }
 
                     onTriggered: {
-                        progress.value = finder.progress
-                        statusBarCustom.progressTotal = finder.progressTotal
-                        statusBarCustom.progressPartial = finder.progressPartial
+                        if (finder.running) {
+                            progress.value = finder.progress
+                            statusBarCustom.progressTotal = finder.progressTotal
+                            statusBarCustom.progressPartial = finder.progressPartial
+                        } else {
+                            stop()
+                        }
                     }
                 }
             } // ProgressBar

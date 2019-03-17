@@ -12,6 +12,17 @@ Page {
     property string messageImageSource;
     property string message;
 
+    //! Functions
+    function showMessage(imageSrc, messageToShow, timeout) {
+        messageImageSource = imageSrc
+        message = messageToShow
+        rowLayoutMessage.clearMessage(timeout)
+    }
+
+    function clearMessage() {
+        rowLayoutMessage.clearMessage(0)
+    }
+
     implicitHeight: rowLayoutRoot.implicitHeight + topPadding + bottomPadding
     leftPadding: 10
     rightPadding: 10
@@ -65,9 +76,27 @@ Page {
 
         RowLayout {
             id: rowLayoutMessage
-            visible: finder.running
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignLeft
+
+            function clearMessage(timeout) {
+                if (timerClearMsg.running) {
+                    timerClearMsg.stop()
+                }
+                if (timeout > 0) {
+                    timerClearMsg.interval = timeout
+                    timerClearMsg.start()
+                }
+            }
+
+            Timer {
+                id: timerClearMsg
+
+                onTriggered: {
+                    message = ""
+                    messageImageSource = ""
+                }
+            }
 
             Image {
                 id: image
