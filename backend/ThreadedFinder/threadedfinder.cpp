@@ -72,21 +72,21 @@ void ThreadedFinder::run()
 {
     setRunning(true);
     clean();
-    setGettingAddresses(true);
     fillQueue();
-    setGettingAddresses(false);
-    setSettingCheckers(true);
     setupNetworkCheckers();
-    setSettingCheckers(false);
+    updateProgress();
     setScaning(true);
     launchNetworkCheckers();
     exec();
+    setStatus(FinishedAndReady);
     setScaning(false);
     setRunning(false);
 }
 
 void ThreadedFinder::fillQueue()
 {
+    setStatus(GettingAddresses);
+    setGettingAddresses(true);
     const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
     launchIndex = initialIP;
@@ -94,10 +94,13 @@ void ThreadedFinder::fillQueue()
         queue.enqueue(QHostAddress(i));
     }
     setProgressTotal(queue.count());
+    setGettingAddresses(false);
 }
 
 void ThreadedFinder::setupNetworkCheckers()
 {
+    setStatus(SettingCheckers);
+    setSettingCheckers(true);
     const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
     for (unsigned int i = initialIP; i <= finalIP; ++i) {
@@ -116,10 +119,12 @@ void ThreadedFinder::setupNetworkCheckers()
             emit singleCheckFinished();
         });
     }
+    setSettingCheckers(false);
 }
 
 void ThreadedFinder::launchNetworkCheckers()
 {
+    setStatus(Scaning);
     const unsigned int finalIP = finalAddress.toIPv4Address();
     for (; launchIndex <= finalIP; ++launchIndex) {
         if (queue.isEmpty()) {
@@ -171,6 +176,19 @@ void ThreadedFinder::addInfoToReportUsingFilters(ProxyInfo *info)
             emit reportChanged(report);
             break;
         }
+    }
+}
+
+int ThreadedFinder::getStatus() const
+{
+    return status;
+}
+
+void ThreadedFinder::setStatus(const Status &value)
+{
+    if (status != value) {
+        status = value;
+        emit statusChanged(value);
     }
 }
 

@@ -19,6 +19,7 @@ class ThreadedFinder : public QThread
     Q_PROPERTY(QString requestUrl READ getRequestUrl WRITE setRequestUrl NOTIFY requestUrlChanged)
     Q_PROPERTY(QList<QObject *> reportModel READ getReport NOTIFY reportChanged)
     Q_PROPERTY(QVariantList filteredCodes READ getFilteredCodes NOTIFY filteredCodesChanged)
+    Q_PROPERTY(int status READ getStatus NOTIFY statusChanged)
     Q_PROPERTY(bool running READ getRunning NOTIFY runningChanged)
     Q_PROPERTY(bool gettingAddresses READ getGettingAddresses NOTIFY gettingAddressesChanged)
     Q_PROPERTY(bool settingCheckers READ getSettingCheckers NOTIFY settingCheckersChanged)
@@ -33,6 +34,8 @@ public:
 
     enum RequestType { HTTP, HTTPS, FTP };
     Q_ENUM(RequestType)
+    enum Status { ReadyFirsTime, GettingAddresses, SettingCheckers, Scaning, FinishedAndReady, AbortedAndReady };
+    Q_ENUM(Status)
 
     ThreadedFinder(QObject *parent = nullptr);
     ~ThreadedFinder() override;
@@ -98,6 +101,9 @@ public:
     int getProgressPartial() const;
     void setProgressPartial(int value);
 
+    int getStatus() const;
+    void setStatus(const Status &value);
+
 signals:
     void replied(QNetworkReply *reply);
     void singleCheckFinished();
@@ -113,6 +119,7 @@ signals:
     void filteredCodesChanged(const QVariantList &updatedFilters);
     void initialAddressStringChanged(const QString &newAddressString);
     void finalAddressStringChanged(const QString &newAddressString);
+    void statusChanged(int updatedStatus);
     void runningChanged(bool isRunning);
     void gettingAddressesChanged(bool isGettingAddresses);
     void settingCheckersChanged(bool isSettingCheckers);
@@ -147,6 +154,7 @@ private:
     QString initialAddressString, finalAddressString;
     unsigned short port = 0;
 
+    Status status = ReadyFirsTime;
     bool running = false;
     bool gettingAddresses = false;
     bool settingCheckers = false;
