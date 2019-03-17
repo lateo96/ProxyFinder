@@ -13,33 +13,29 @@ ApplicationWindow {
     height: 580
     title: Qt.application.name + ' ' + Qt.application.version
 
+    Material.theme: preferences.theme
+
     //! Properties
     property int status: finder.status
     onStatusChanged: {
         switch (status) {
         case 0: // ReadyFirstTime
-            console.log('ReadyFirstTime')
             break
         case 1: // GettingAddresses
-            console.log('GettingAddresses')
             break
         case 2: // SettingCheckers
-            console.log('SettingCheckers')
             progress.Material.accent = Material.Green
             break
         case 3: // Scaning
-            console.log('Scaning')
             progress.noAnimate = true
             progress.value = 0
             progress.noAnimate = false
             progress.Material.accent = appWindow.Material.accent
             break
         case 4: // FinishedAndReady
-            console.log('FinishedAndReady')
             finished()
             break
         case 5: // AbortedAndReady
-            console.log('AbortedAndReady')
         }
     }
 
@@ -84,6 +80,7 @@ ApplicationWindow {
         Menu {
             title: qsTr("&Tools")
             MenuItem { text: qsTr("&Advanced network options"); enabled: !finder.scaning; icon.source: "qrc:/images/network-settings.svg"; icon.color: menuBar.iconColor; onTriggered: advancedNetworkConfig.open() }
+            MenuItem { text: qsTr("&Preferences"); icon.source: "qrc:/images/preferences.svg"; icon.color: menuBar.iconColor; onTriggered: preferences.open() }
             MenuSeparator { }
             MenuItem { text: qsTr("&Quit"); icon.source: "qrc:/images/close.svg"; icon.color: menuBar.iconColor; onTriggered: appWindow.close() }
         }
@@ -207,6 +204,13 @@ ApplicationWindow {
     //! Dialogs
     AdvancedNetworkConfig {
         id: advancedNetworkConfig
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+    }
+
+    Preferences {
+        id: preferences
         anchors.centerIn: Overlay.overlay
         modal: true
         focus: true
