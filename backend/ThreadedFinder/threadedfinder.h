@@ -146,7 +146,7 @@ private:
     void addInfoToReportUsingFilters(ProxyInfo *info);
 
 private:
-    unsigned int maxThreads = 100;
+    unsigned int maxThreads = 300;
     int timeout = 2000;
     RequestType requestType = HTTP;
     QString requestUrl = "google.com";
