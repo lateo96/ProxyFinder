@@ -19,10 +19,10 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     app.setOrganizationName("TheCrowporation");
     app.setApplicationName("Proxy Finder");
-    app.setApplicationVersion("0.1-alpha");
+    app.setApplicationVersion("0.2-alpha");
     app.setWindowIcon(QIcon(":/images/appIcon.png"));
 
-    qmlRegisterType<ApplicationManager>("ProxyFinder", 0, 1, "ApplicationManager");
+    qmlRegisterType<ApplicationManager>("ProxyFinder", 0, 2, "ApplicationManager");
 
     QQmlApplicationEngine engine;
     ThreadedFinder finder;
