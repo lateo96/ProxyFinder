@@ -41,9 +41,6 @@ int main(int argc, char *argv[])
 void load(ThreadedFinder &finder)
 {
     Settings s;
-    if (!s.contains("network/basic/initialAddress")) {
-        return;
-    }
 
     // Basic
     finder.setInitialAddressString(s.getInitialAddress());
