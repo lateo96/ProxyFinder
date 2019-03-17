@@ -9,7 +9,7 @@ ItemDelegate {
     Rectangle {
         id: rectangleHighlight
         anchors.fill: parent
-        color: model.modelData.httpStatusCode === 0 ? "#5041cd52" : "transparent"
+        color: modelData.httpStatusCode === 0 ? "#5041cd52" : "transparent"
         z: -1
     }
 
@@ -54,19 +54,19 @@ ItemDelegate {
     contentItem: RowLayout {
         Label {
             id: labelIP
-            text: model.modelData.hostName
+            text: modelData.hostName
             Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
             Layout.preferredWidth: internalLabelIPWidth
         }
         Label {
             id: labelCode
-            text: model.modelData.httpStatusCode
+            text: modelData.httpStatusCode
             Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
             Layout.preferredWidth: internalLabelCodeWidth
         }
         Label {
             id: labelPhrase
-            text: model.modelData.httpReasonPhrase
+            text: modelData.httpReasonPhrase
             Layout.fillWidth: true
         }
     } // contentItem (RowLayout)
