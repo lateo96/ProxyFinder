@@ -19,7 +19,7 @@ Popup {
     }
     */
 
-    contentItem: Label {
+    Label {
         color: "red"
         text: qsTr("This application is still <i><b>unstable</b></i>.<br>" +
                    "In <i><b>alpha</b></i> stage.")
