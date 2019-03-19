@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 
 Dialog {
@@ -11,7 +12,7 @@ Dialog {
 
         Image {
             source: "qrc:/images/appIcon.svg"
-            sourceSize: Qt.size(120, 130)
+            sourceSize: Qt.size(120, 120)
             fillMode: Image.PreserveAspectFit
 
             Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
@@ -19,7 +20,7 @@ Dialog {
 
         Rectangle {
             height: 1
-            color: "gray"
+            color: Material.color(Material.Grey)
             Layout.fillWidth: true
         }
 

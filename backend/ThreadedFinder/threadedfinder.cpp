@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QEventLoop>
 
-#define DEBUG
+//#define DEBUG
 
 ThreadedFinder::ThreadedFinder(QObject *parent)
     : QThread (parent)
@@ -16,7 +16,7 @@ ThreadedFinder::ThreadedFinder(QObject *parent)
             return;
         }
 
-        if (runningCheckers.count() == 0) {
+        if (runningCheckers == 0) {
             launchNetworkCheckers();
         }
     });
@@ -29,17 +29,13 @@ ThreadedFinder::~ThreadedFinder()
 
 void ThreadedFinder::clean()
 {
-    queue.clear();
-
-    for (auto x : runningCheckers) {
-        x->stop();
-        connectedCheckers.removeOne(x);
-    }
+    addressesToScan = 0;
     for (auto x : connectedCheckers) {
         x->stop();
+        x->deleteLater();
     }
 
-    runningCheckers.clear();
+    runningCheckers = 0;
     connectedCheckers.clear();
 
     for (auto x : fullReport) {
@@ -56,9 +52,9 @@ void ThreadedFinder::clean()
 void ThreadedFinder::updateProgress()
 {
     if (settingCheckers) {
-        setProgressPartial(connectedCheckers.count());
+        setProgressPartial(unsigned(connectedCheckers.count()));
     } else {
-        setProgressPartial(progressTotal - queue.count());
+        setProgressPartial(progressTotal - addressesToScan);
     }
     setProgress(double(progressPartial)/progressTotal);
 }
@@ -90,10 +86,8 @@ void ThreadedFinder::fillQueue()
     const unsigned int initialIP = initialAddress.toIPv4Address();
     const unsigned int finalIP = finalAddress.toIPv4Address();
     launchIndex = initialIP;
-    for (unsigned int i = initialIP; i <= finalIP; ++i) {
-        queue.enqueue(QHostAddress(i));
-    }
-    setProgressTotal(queue.count());
+    addressesToScan = finalIP - initialIP;
+    setProgressTotal(addressesToScan);
     setGettingAddresses(false);
 }
 
@@ -112,8 +106,8 @@ void ThreadedFinder::setupNetworkCheckers()
         // Remove the deleted proxy thread from the containers
         connect(proxyChecker, &ProxyCheckerThreadWrapper::destroyed, [=](QObject *obj) {
             connectedCheckers.removeOne(static_cast<ProxyCheckerThreadWrapper*>(obj));
-            runningCheckers.removeOne(static_cast<ProxyCheckerThreadWrapper*>(obj));
-            queue.dequeue(); // Not removes the destroyed address
+            runningCheckers--;
+            addressesToScan--;
             updateProgress();
 
             emit singleCheckFinished();
@@ -127,16 +121,16 @@ void ThreadedFinder::launchNetworkCheckers()
     setStatus(Scaning);
     const unsigned int finalIP = finalAddress.toIPv4Address();
     for (; launchIndex <= finalIP; ++launchIndex) {
-        if (queue.isEmpty()) {
+        if (addressesToScan == 0) {
             quit();
         }
-        if (unsigned(runningCheckers.count()) >= maxThreads) {
+        if (runningCheckers >= maxThreads) {
             break;
         }
         for (int j = 0; j < connectedCheckers.count(); ++j) {
-            if (connectedCheckers[j]->getHostName() == QHostAddress(launchIndex).toString()) {
-                ProxyCheckerThreadWrapper *p = connectedCheckers[j];
-                runningCheckers.append(p);
+            ProxyCheckerThreadWrapper *p = connectedCheckers[j];
+            if (p->getHostName() == QHostAddress(launchIndex).toString()) {
+                runningCheckers++;
                 QNetworkRequest request(QUrl(requestTypeToProtocolString[requestType] + "://" + requestUrl));
                 request.setHeader(QNetworkRequest::UserAgentHeader, "Requester");
                 p->start(request);
@@ -146,7 +140,7 @@ void ThreadedFinder::launchNetworkCheckers()
     }
 }
 
-void ThreadedFinder::onReplied(QNetworkReply *reply)
+void ThreadedFinder::onReplied(QNetworkReply *reply, ProxyCheckerThreadWrapper *obj)
 {
     emit replied(reply);
 
@@ -159,13 +153,13 @@ void ThreadedFinder::onReplied(QNetworkReply *reply)
     ProxyInfo *info = new ProxyInfo(proxy.hostName(), proxy.port(), httpCode, httpReason);
 
 #ifdef DEBUG
-    //qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << "(HTTP: " + QString::number(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()) +", " + reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString() + ")" << httpReason;
+    qDebug() << proxy.hostName() + ':' + QString::number(proxy.port()) << httpCode << "(HTTP: " + QString::number(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()) +", " + reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString() + ")" << httpReason;
 #endif
     fullReport.append(info);
     addInfoToReportUsingFilters(info);
 
     // Schedule the deletion of the proxy thread
-    sender()->deleteLater();
+    obj->deleteLater();
 }
 
 void ThreadedFinder::addInfoToReportUsingFilters(ProxyInfo *info)
@@ -192,12 +186,12 @@ void ThreadedFinder::setStatus(const Status &value)
     }
 }
 
-int ThreadedFinder::getProgressPartial() const
+unsigned ThreadedFinder::getProgressPartial() const
 {
     return progressPartial;
 }
 
-void ThreadedFinder::setProgressPartial(int value)
+void ThreadedFinder::setProgressPartial(unsigned value)
 {
     if (progressPartial != value) {
         progressPartial = value;
@@ -205,12 +199,12 @@ void ThreadedFinder::setProgressPartial(int value)
     }
 }
 
-int ThreadedFinder::getProgressTotal() const
+unsigned ThreadedFinder::getProgressTotal() const
 {
     return progressTotal;
 }
 
-void ThreadedFinder::setProgressTotal(int value)
+void ThreadedFinder::setProgressTotal(unsigned value)
 {
     if (progressTotal != value) {
         progressTotal = value;

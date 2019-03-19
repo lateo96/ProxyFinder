@@ -25,13 +25,14 @@ void ProxyChecker::start(const QNetworkRequest &request)
 {
     QNetworkReply *reply = get(request);
 
-    QTimer t;
-    t.setSingleShot(true);
+    QTimer *t = new QTimer;
+    t->setSingleShot(true);
 
-    connect(&t, &QTimer::timeout, reply, &QNetworkReply::abort);
-    connect(reply, &QNetworkReply::finished, &t, &QTimer::stop);
+    connect(t, &QTimer::timeout, reply, &QNetworkReply::abort);
+    connect(t, &QTimer::timeout, t, &QTimer::deleteLater);
+    connect(reply, &QNetworkReply::finished, t, &QTimer::stop);
 
-    t.start(timeout);
+    t->start(timeout);
 }
 
 void ProxyChecker::stop()

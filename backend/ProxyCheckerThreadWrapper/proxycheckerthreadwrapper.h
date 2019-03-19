@@ -20,7 +20,7 @@ protected:
 
 signals:
     void ready(const QNetworkRequest &request);
-    void replied(QNetworkReply *reply);
+    void replied(QNetworkReply *reply, ProxyCheckerThreadWrapper *obj = nullptr);
 
 public slots:
     void start(const QNetworkRequest &request);

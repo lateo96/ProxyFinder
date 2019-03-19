@@ -1,23 +1,59 @@
 #include "settings.h"
 
 // Begin implementations
-Settings::Settings(QObject *parent) : QSettings(parent) {
-    // Basic
-    getInitialAddress();
-    getFinalAddress();
-    getPort();
+Settings::Settings(const QString &organization, const QString &application, QObject *parent)
+    : QSettings (organization, application, parent)
+{
+    initialize();
+}
 
-    // Advanced
-    getTimeout();
-    getMaxThreads();
-    getRequestType();
-    getRequestUrl();
+Settings::Settings(const QString &fileName, QSettings::Format format, QObject *parent)
+    : QSettings (fileName, format, parent)
+{
+    initialize();
+}
 
-    // Preferences
-    getTheme();
+Settings::Settings(QObject *parent) : QSettings(parent)
+{
+    connect(&net, &QNetworkAccessManager::networkAccessibleChanged, this, &Settings::networkAvailableChanged);
+    initialize();
+}
+
+Settings::~Settings()
+{
 }
 
 //! Properties
+bool Settings::getFirstTime()
+{
+    firstTime = value(".").toBool() == false;
+    return firstTime;
+}
+
+void Settings::setFirstTime(bool isFirstTime)
+{
+    if (firstTime != isFirstTime) {
+        firstTime = isFirstTime;
+        setValue(".", !isFirstTime);
+        emit firstTimeChanged(isFirstTime);
+    }
+}
+
+bool Settings::getNetworkAvailable()
+{
+    networkAvailable = net.networkAccessible();
+    return networkAvailable;
+}
+
+void Settings::setNetworkAvailable(bool isAvailable)
+{
+    if (networkAvailable != isAvailable) {
+        networkAvailable = isAvailable;
+        emit networkAvailableChanged(isAvailable);
+    }
+}
+
+// Basics
 QString Settings::getInitialAddress()
 {
     if (contains("network/basic/initialAddress")) {
@@ -138,6 +174,7 @@ void Settings::setRequestUrl(const QString &url)
     }
 }
 
+// Preferences
 int Settings::getTheme()
 {
     if (contains("preferences/style/theme")) {
@@ -152,5 +189,38 @@ void Settings::setTheme(int newTheme)
         theme = newTheme;
         setValue("preferences/style/theme", newTheme);
         emit themeChanged(newTheme);
+    }
+}
+
+// Functions
+void Settings::initialize()
+{
+    getFirstTime();
+    if (firstTime) {
+        // Basics
+        setValue("network/basic/initialAddress", initialAddress);
+        setValue("network/basic/finalAddress", finalAddress);
+        setValue("network/basic/port", port);
+        // Advanced
+        setValue("network/advanced/timeout", timeout);
+        setValue("network/advanced/maxThreads", maxThreads);
+        setValue("network/advanced/requestType", int(requestType));
+        setValue("network/advanced/requestUrl", requestUrl);
+        // Preferences
+        setValue("preferences/style/theme", theme);
+    } else {
+        // Basic
+        getInitialAddress();
+        getFinalAddress();
+        getPort();
+
+        // Advanced
+        getTimeout();
+        getMaxThreads();
+        getRequestType();
+        getRequestUrl();
+
+        // Preferences
+        getTheme();
     }
 }

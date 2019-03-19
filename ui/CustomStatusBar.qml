@@ -27,7 +27,10 @@ Page {
     leftPadding: 10
     rightPadding: 10
 
-    Material.background: !groupBoxConfigureProxy.valid ? Material.Pink : parent.Material.background
+    background: Rectangle {
+        color: !general.proxyConfig.valid ? Material.color(Material.Pink) : appWindow.Material.background
+        Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutQuart } }
+    }
 
     RowLayout {
         id: rowLayoutRoot
@@ -49,7 +52,7 @@ Page {
                 text: finder.gettingAddresses ? qsTr("Initializing") :
                                                 finder.settingCheckers ? qsTr("Addressing") :
                                                                          finder.scaning ? qsTr("Scaning") :
-                                                                                          !groupBoxConfigureProxy.valid ? qsTr("Invalid") : qsTr("Ready")
+                                                                                          !general.proxyConfig.valid ? qsTr("Invalid") : qsTr("Ready")
                 horizontalAlignment: Label.AlignLeft | Label.AlignVCenter
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter

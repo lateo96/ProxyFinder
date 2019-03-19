@@ -2,13 +2,15 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
+#include <QDir>
+#include <QFont>
 #include <QDebug>
 
 #include "backend/ThreadedFinder/threadedfinder.h"
 #include "backend/ApplicationManager/applicationmanager.h"
 
-void load(ThreadedFinder &finder);
-void save(const ThreadedFinder &finder);
+void load(Settings &s, ThreadedFinder &finder);
+void save(Settings &s, const ThreadedFinder &finder);
 
 //! TODO: Caught exceptions to allow saving even if the app crashes
 
@@ -22,26 +24,34 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("0.2-alpha");
     app.setWindowIcon(QIcon(":/images/appIcon.png"));
 
+#ifdef Q_OS_WIN
+    QFont applicationFont("Sans Serif", -1, QFont::Normal);
+    applicationFont.setStyleHint(QFont::SansSerif);
+    app.setFont(applicationFont);
+#endif
+
     qmlRegisterType<ApplicationManager>("ProxyFinder", 0, 2, "ApplicationManager");
 
     QQmlApplicationEngine engine;
     ThreadedFinder finder;
-    load(finder);
+    QString settingsPath = app.applicationDirPath();
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    Settings s;
+    load(s, finder);
     engine.rootContext()->setContextProperty("finder", &finder);
     engine.load(QUrl(QStringLiteral("qrc:/ui/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 
     int returnCode = app.exec();
-    save(finder);
+    save(s, finder);
 
     return returnCode;
 }
 
-void load(ThreadedFinder &finder)
+void load(Settings &s, ThreadedFinder &finder)
 {
-    Settings s;
-
     // Basic
     finder.setInitialAddressString(s.getInitialAddress());
     finder.setFinalAddressString(s.getFinalAddress());
@@ -54,9 +64,9 @@ void load(ThreadedFinder &finder)
     finder.setRequestUrl(s.getRequestUrl());
 }
 
-void save(const ThreadedFinder &finder)
+void save(Settings &s, const ThreadedFinder &finder)
 {
-    Settings s;
+    s.setFirstTime(false);
 
     // Basic
     s.setInitialAddress(finder.getInitialAddressString());

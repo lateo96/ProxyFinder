@@ -60,6 +60,8 @@ Dialog {
                 onCheckedChanged: {
                     if (checked) {
                         theme = Material.System
+                    } else {
+                        theme = appWindow.Material.theme
                     }
                 }
 

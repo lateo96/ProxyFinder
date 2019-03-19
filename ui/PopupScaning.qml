@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
-Popup {
+Dialog {
     id: root
 
     /*RowLayout {
@@ -19,6 +19,7 @@ Popup {
     }
     */
 
+    title: qsTr("Warning")
     Label {
         color: "red"
         text: qsTr("This application is still <i><b>unstable</b></i>.<br>" +

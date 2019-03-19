@@ -13,5 +13,9 @@
         <file>CustomTextField.qml</file>
         <file>DialogReorderIPs.qml</file>
         <file>CustomStatusBar.qml</file>
+        <file>Preferences.qml</file>
+        <file>DialogStyleChooser.qml</file>
+        <file>NetworkOverlay.qml</file>
+        <file>General.qml</file>
     </qresource>
 </RCC>

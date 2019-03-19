@@ -5,14 +5,21 @@ ProxyCheckerThreadWrapper::ProxyCheckerThreadWrapper(const QNetworkProxy &proxy,
 {
     proxyChecker.moveToThread(&paralellThread);
     connect(this, &ProxyCheckerThreadWrapper::ready, &proxyChecker, &ProxyChecker::start);
-    connect(&proxyChecker, &ProxyChecker::finished, this, &ProxyCheckerThreadWrapper::replied);
+    connect(&proxyChecker, &ProxyChecker::finished, [=](QNetworkReply *reply) {
+        emit replied(reply, this);
+    });
     connect(&proxyChecker, &ProxyChecker::finished, &paralellThread, &QThread::quit);
 }
 
 ProxyCheckerThreadWrapper::~ProxyCheckerThreadWrapper()
 {
-    paralellThread.quit();
-    paralellThread.wait();
+    if (paralellThread.isRunning()) {
+        paralellThread.quit();
+        paralellThread.wait(500);
+        if (paralellThread.isRunning()) {
+            paralellThread.terminate();
+        }
+    }
 }
 
 QString ProxyCheckerThreadWrapper::getHostName() const

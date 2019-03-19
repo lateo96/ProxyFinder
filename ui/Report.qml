@@ -37,7 +37,7 @@ Page {
         id: rectangleScrollViewContainer
         anchors.fill: parent
         height: 1
-        color: "#50888888"
+        color: Material.theme === Material.Light ? Qt.lighter(Material.color(Material.Grey)) : Qt.darker(Material.color(Material.Grey))
 
         ScrollView {
             id: scrollView
@@ -67,7 +67,9 @@ Page {
                     running: finder.scaning
 
                     onRunningChanged: {
-                        list.model = finder.reportModel
+                        if (!running) {
+                            list.model = finder.reportModel
+                        }
                     }
 
                     onTriggered: {

@@ -3,12 +3,15 @@
 
 #include <QSettings>
 #include <QString>
+#include <QNetworkAccessManager>
 #include "../ThreadedFinder/threadedfinder.h"
 
 class Settings : public QSettings
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool firstTime READ getFirstTime NOTIFY firstTimeChanged)
+    Q_PROPERTY(bool networkAvailable READ getNetworkAvailable NOTIFY networkAvailableChanged)
     // Network Basics
     Q_PROPERTY(QString initialAddress READ getInitialAddress WRITE setInitialAddress NOTIFY initialAddressChanged)
     Q_PROPERTY(QString finalAddress READ getFinalAddress WRITE setFinalAddress NOTIFY finalAddressChanged)
@@ -22,10 +25,21 @@ class Settings : public QSettings
     Q_PROPERTY(int theme READ getTheme WRITE setTheme NOTIFY themeChanged)
 
 public:
-    explicit Settings(QObject *parent = nullptr);
+    Settings(const QString &organization, const QString &application = QString(), QObject *parent = nullptr);
+    Settings(const QString &fileName, QSettings::Format format, QObject *parent = nullptr);
+    Settings(QObject *parent = nullptr);
+    ~Settings();
     enum Theme { Light, Dark, System };
     Q_ENUM(Theme)
 
+    //! Properties
+    bool getFirstTime();
+    void setFirstTime(bool isFirstTime);
+
+    bool getNetworkAvailable();
+    void setNetworkAvailable(bool isAvailable);
+
+    // Basics
     QString getInitialAddress();
     void setInitialAddress(const QString &ip);
 
@@ -35,6 +49,7 @@ public:
     unsigned short getPort();
     void setPort(unsigned short p);
 
+    // Advanced
     int getTimeout();
     void setTimeout(int t);
 
@@ -47,11 +62,14 @@ public:
     QString getRequestUrl();
     void setRequestUrl(const QString &url);
 
+    // Preferences
     int getTheme();
     void setTheme(int newTheme);
 
 signals:
     //! Properties
+    void firstTimeChanged(bool isFirstTime);
+    void networkAvailableChanged(bool isAvailable);
     // Basics
     void initialAddressChanged(const QString &address);
     void finalAddressChanged(const QString &address);
@@ -67,18 +85,26 @@ signals:
 public slots:
 
 private:
+    bool firstTime = false;
+
+    QNetworkAccessManager net;
+    bool networkAvailable = false;
+
     // Basics
     QString initialAddress, finalAddress;
     unsigned short port = 0;
 
     // Advanced
-    int timeout = 2000;
+    int timeout = 1000;
     unsigned int maxThreads = 300;
     ThreadedFinder::RequestType requestType = ThreadedFinder::HTTP;
     QString requestUrl = "google.com";
 
     // Preferences
     int theme = System;
+
+    //! Functions
+    void initialize();
 };
 
 #endif // SETTINGS_H

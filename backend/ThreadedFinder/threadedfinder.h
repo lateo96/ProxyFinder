@@ -26,8 +26,8 @@ class ThreadedFinder : public QThread
     Q_PROPERTY(bool scaning READ getScaning NOTIFY scaningChanged)
     Q_PROPERTY(bool validInitialAddress READ getValidInitialAddress NOTIFY validInitialAddressChanged)
     Q_PROPERTY(bool validFinalAddress READ getValidFinalAddress NOTIFY validFinalAddressChanged)
-    Q_PROPERTY(double progressTotal READ getProgressTotal NOTIFY progressTotalChanged)
-    Q_PROPERTY(double progressPartial READ getProgressPartial NOTIFY progressPartialChanged)
+    Q_PROPERTY(unsigned progressTotal READ getProgressTotal NOTIFY progressTotalChanged)
+    Q_PROPERTY(unsigned progressPartial READ getProgressPartial NOTIFY progressPartialChanged)
     Q_PROPERTY(double progress READ getProgress NOTIFY progressChanged)
 
 public:
@@ -95,11 +95,11 @@ public:
     bool getGettingAddresses() const;
     void setGettingAddresses(bool value);
 
-    int getProgressTotal() const;
-    void setProgressTotal(int value);
+    unsigned getProgressTotal() const;
+    void setProgressTotal(unsigned value);
 
-    int getProgressPartial() const;
-    void setProgressPartial(int value);
+    unsigned getProgressPartial() const;
+    void setProgressPartial(unsigned value);
 
     int getStatus() const;
     void setStatus(const Status &value);
@@ -126,8 +126,8 @@ signals:
     void scaningChanged(bool isScaning);
     void validInitialAddressChanged(bool isValid);
     void validFinalAddressChanged(bool isValid);
-    void progressTotalChanged(int total);
-    void progressPartialChanged(int partial);
+    void progressTotalChanged(unsigned total);
+    void progressPartialChanged(unsigned partial);
     void progressChanged(double updatedProgress);
 
 public slots:
@@ -140,14 +140,14 @@ private slots:
     void fillQueue();
     void setupNetworkCheckers();
     void launchNetworkCheckers();
-    void onReplied(QNetworkReply *reply);
+    void onReplied(QNetworkReply *reply, ProxyCheckerThreadWrapper *obj);
 
 private:
     void addInfoToReportUsingFilters(ProxyInfo *info);
 
 private:
     unsigned int maxThreads = 300;
-    int timeout = 2000;
+    int timeout = 1000;
     RequestType requestType = HTTP;
     QString requestUrl = "google.com";
     QHostAddress initialAddress, finalAddress;
@@ -163,20 +163,20 @@ private:
     unsigned int launchIndex;
     bool validInitialAddress = false;
     bool validFinalAddress = false;
-    int progressTotal = 1;
-    int progressPartial = 0;
+    unsigned int progressTotal = 1;
+    unsigned int progressPartial = 0;
     double progress = 0.0;
     int totalAddressesToScan = 1;
     QNetworkProxy::ProxyType requestTypeToProxyType[3] = { QNetworkProxy::HttpCachingProxy, QNetworkProxy::HttpCachingProxy, QNetworkProxy::FtpCachingProxy };
     QStringList requestTypeToProtocolString = QStringList() << "http" << "https" << "ftp";
 
-    unsigned int finishedJobs = 0;
-    QQueue<QHostAddress> queue;
+    unsigned int runningCheckers = 0;
+    unsigned int addressesToScan = 0;
     QList<ProxyCheckerThreadWrapper*> connectedCheckers;
-    QList<ProxyCheckerThreadWrapper*> runningCheckers;
+    QList<QObject*> checkersToDelete;
     QList<QObject*> report;
     QList<QObject*> fullReport;
-    QVariantList filteredCodes = QVariantList() << 99 << QNetworkReply::NoError
+    QVariantList filteredCodes = QVariantList() << QNetworkReply::NoError
                                                 << QNetworkReply::ProxyAuthenticationRequiredError;
 };
 

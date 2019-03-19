@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
+import QtGraphicalEffects 1.12
 
 // My imports
 import ProxyFinder 0.2
@@ -34,6 +35,9 @@ ApplicationWindow {
             break
         case 4: // FinishedAndReady
             finished()
+            progress.noAnimate = true
+            progress.value = 0
+            progress.noAnimate = false
             break
         case 5: // AbortedAndReady
         }
@@ -48,9 +52,9 @@ ApplicationWindow {
     //! Functions
     function scan() {
         statusBarCustom.clearMessage()
-        finder.initialAddress = groupBoxConfigureProxy.initialIP
-        finder.finalAddress = groupBoxConfigureProxy.finalIP
-        finder.port = ~~groupBoxConfigureProxy.port
+        finder.initialAddress = proxyConfig.initialIP
+        finder.finalAddress = proxyConfig.finalIP
+        finder.port = ~~proxyConfig.port
         finder.maxThreads = advancedNetworkConfig.maxThreads
         finder.timeout = advancedNetworkConfig.timeout
         finder.requestType = advancedNetworkConfig.requestType
@@ -121,85 +125,10 @@ ApplicationWindow {
     }
 
     //! Content
-    ColumnLayout {
+    General {
+        id: general
         anchors.fill: parent
-        anchors.margins: 10
-        spacing: 30
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 20
-
-            ProxyConfig {
-                id: groupBoxConfigureProxy
-                enabled: !finder.running
-                clip: true
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-            }
-
-            ButtonScan {
-                id: buttonScan
-                text: qsTr("Scan")
-                highlighted: true
-                enabled: !finder.running && groupBoxConfigureProxy.valid
-                Layout.fillWidth: true
-
-                onClicked: {
-                    if (finder.addressesAreInverted()) {
-                        dialogReorderIPs.open()
-                    } else {
-                        scan()
-                    }
-                }
-
-                onEnabledChanged: {
-                    if (enabled && dialogConfirmExit.visible) {
-                        dialogConfirmExit.close()
-                    }
-                }
-            } // ButtonScan
-
-            ProgressBar {
-                id: progress
-                indeterminate: buttonScan.enabled
-                Material.accent: !groupBoxConfigureProxy.valid ? Material.Pink : appWindow.Material.accent
-                Layout.fillWidth: true
-
-                property bool noAnimate: false
-
-                Behavior on value { NumberAnimation { duration: progress.noAnimate ? 0 : 100 } }
-
-                Timer {
-                    id: timerProgressUpdater
-                    interval: 100
-                    repeat: true
-                    running: finder.running
-
-                    onTriggered: {
-                        progress.value = finder.progress
-                        statusBarCustom.progressTotal = finder.progressTotal
-                        statusBarCustom.progressPartial = finder.progressPartial
-                    }
-                }
-            } // ProgressBar
-        } // ColumnLayout
-
-
-        Label {
-            id: headerLabel
-            text: qsTr("Report")
-            font.pointSize: Qt.application.font.pointSize * 2
-            Layout.fillWidth: true
-        }
-
-
-        Report {
-            id: report
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-        }
-    } // ColumnLayout (root)
+    }
 
     //! Dialogs
     AdvancedNetworkConfig {
@@ -214,6 +143,18 @@ ApplicationWindow {
         anchors.centerIn: Overlay.overlay
         modal: true
         focus: true
+    }
+
+    DialogStyleChooser {
+        id: dialogStyleChooser
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+        visible: appManager.settings.firstTime
+
+        onClosed: {
+            dialogAlphaWarning.open()
+        }
     }
 
     DialogAbout {
@@ -253,15 +194,28 @@ ApplicationWindow {
         focus: true
 
         onAccepted: {
-            groupBoxConfigureProxy.swapIPs()
+            proxyConfig.swapIPs()
             scan()
         }
     }
 
     PopupScaning {
+        id: dialogAlphaWarning
         anchors.centerIn: Overlay.overlay
-        //        visible: true
+        visible: !appManager.settings.firstTime && !networkUnavailable.visible
         modal: true
         focus: true
+    }
+
+    NetworkOverlay {
+        id: networkUnavailable
+        anchors.centerIn: Overlay.overlay
+        modal: true
+        focus: true
+        visible: !appManager.settings.networkAvailable
+
+        onClosed: {
+            dialogAlphaWarning.open()
+        }
     }
 }
