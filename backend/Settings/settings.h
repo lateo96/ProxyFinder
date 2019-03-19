@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <QString>
 #include <QNetworkAccessManager>
+#include <QNetworkConfigurationManager>
+#include <QNetworkSession>
 #include "../ThreadedFinder/threadedfinder.h"
 
 class Settings : public QSettings
@@ -12,6 +14,7 @@ class Settings : public QSettings
 
     Q_PROPERTY(bool firstTime READ getFirstTime NOTIFY firstTimeChanged)
     Q_PROPERTY(bool networkAvailable READ getNetworkAvailable NOTIFY networkAvailableChanged)
+    Q_PROPERTY(QString operatingSystem READ getOperatingSystem NOTIFY operatingSystemChanged CONSTANT)
     // Network Basics
     Q_PROPERTY(QString initialAddress READ getInitialAddress WRITE setInitialAddress NOTIFY initialAddressChanged)
     Q_PROPERTY(QString finalAddress READ getFinalAddress WRITE setFinalAddress NOTIFY finalAddressChanged)
@@ -66,10 +69,14 @@ public:
     int getTheme();
     void setTheme(int newTheme);
 
+    QString getOperatingSystem() const;
+    void setOperatingSystem(const QString &systemName);
+
 signals:
     //! Properties
     void firstTimeChanged(bool isFirstTime);
     void networkAvailableChanged(bool isAvailable);
+    void operatingSystemChanged(const QString &systemName);
     // Basics
     void initialAddressChanged(const QString &address);
     void finalAddressChanged(const QString &address);
@@ -89,6 +96,8 @@ private:
 
     QNetworkAccessManager net;
     bool networkAvailable = false;
+
+    QString operatingSystem;
 
     // Basics
     QString initialAddress, finalAddress;

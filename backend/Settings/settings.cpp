@@ -192,9 +192,32 @@ void Settings::setTheme(int newTheme)
     }
 }
 
+QString Settings::getOperatingSystem() const
+{
+    return operatingSystem;
+}
+
+void Settings::setOperatingSystem(const QString &systemName)
+{
+    if (operatingSystem != systemName) {
+        operatingSystem = systemName;
+        emit operatingSystemChanged(systemName);
+    }
+}
+
 // Functions
 void Settings::initialize()
 {
+#ifdef Q_OS_WIN
+    setOperatingSystem("Windows");
+#endif
+#ifdef Q_OS_LINUX
+    setOperatingSystem("Linux");
+#endif
+#ifdef Q_OS_MACOS
+    setOperatingSystem("MacOS");
+#endif
+
     getFirstTime();
     if (firstTime) {
         // Basics
