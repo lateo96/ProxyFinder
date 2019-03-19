@@ -17,31 +17,6 @@ ApplicationWindow {
     Material.theme: preferences.theme
 
     //! Properties
-    property int status: finder.status
-    onStatusChanged: {
-        switch (status) {
-        case 0: // ReadyFirstTime
-            break
-        case 1: // GettingAddresses
-            break
-        case 2: // SettingCheckers
-            progress.Material.accent = Material.Green
-            break
-        case 3: // Scaning
-            progress.noAnimate = true
-            progress.value = 0
-            progress.noAnimate = false
-            progress.Material.accent = appWindow.Material.accent
-            break
-        case 4: // FinishedAndReady
-            finished()
-            progress.noAnimate = true
-            progress.value = 0
-            progress.noAnimate = false
-            break
-        case 5: // AbortedAndReady
-        }
-    }
 
     //! Backend
     ApplicationManager {
@@ -52,9 +27,9 @@ ApplicationWindow {
     //! Functions
     function scan() {
         statusBarCustom.clearMessage()
-        finder.initialAddress = proxyConfig.initialIP
-        finder.finalAddress = proxyConfig.finalIP
-        finder.port = ~~proxyConfig.port
+        finder.initialAddress = general.proxyConfig.initialIP
+        finder.finalAddress = general.proxyConfig.finalIP
+        finder.port = ~~general.proxyConfig.port
         finder.maxThreads = advancedNetworkConfig.maxThreads
         finder.timeout = advancedNetworkConfig.timeout
         finder.requestType = advancedNetworkConfig.requestType
@@ -62,20 +37,12 @@ ApplicationWindow {
         finder.start()
     }
 
-    //! Signals
-    signal finished()
-
     //! Events
     onClosing: {
         if (finder.scaning) {
             dialogConfirmExit.open()
             close.accepted = false
         }
-    }
-
-    onFinished: {
-        //statusBarCustom.showMessage("qrc:/images/done-green.svg", qsTr("Done!"), 10000)
-        appWindow.alert(0)
     }
 
     //! Menu and status bars
@@ -150,7 +117,7 @@ ApplicationWindow {
         anchors.centerIn: Overlay.overlay
         modal: true
         focus: true
-        visible: appManager.settings.firstTime
+        visible: appManager.settings.firstTime && !networkUnavailable.visible
 
         onClosed: {
             dialogAlphaWarning.open()
@@ -194,8 +161,8 @@ ApplicationWindow {
         focus: true
 
         onAccepted: {
-            proxyConfig.swapIPs()
-            scan()
+            general.proxyConfig.swapIPs()
+            general.scan()
         }
     }
 
@@ -212,7 +179,7 @@ ApplicationWindow {
         anchors.centerIn: Overlay.overlay
         modal: true
         focus: true
-        visible: !appManager.settings.networkAvailable
+        visible: !appManager.settings.networkAvailable && appManager.settings.operatingSystem !== "Windows"
 
         onClosed: {
             dialogAlphaWarning.open()
