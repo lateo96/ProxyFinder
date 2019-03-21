@@ -66,7 +66,9 @@ void load(Settings &s, ThreadedFinder &finder)
 
 void save(Settings &s, const ThreadedFinder &finder)
 {
-    s.setFirstTime(false);
+    if (!s.getRetryFirstTime()) {
+        s.setFirstTime(false);
+    }
 
     // Basic
     s.setInitialAddress(finder.getInitialAddressString());
