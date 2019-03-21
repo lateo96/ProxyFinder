@@ -179,10 +179,12 @@ ApplicationWindow {
         anchors.centerIn: Overlay.overlay
         modal: true
         focus: true
-        visible: !appManager.settings.networkAvailable && appManager.settings.operatingSystem !== "Windows"
+        visible: !appManager.settings.networkAvailable
 
         onClosed: {
-            dialogAlphaWarning.open()
+            if (!appManager.settings.firstTime) {
+                dialogAlphaWarning.open()
+            }
         }
     }
 }
