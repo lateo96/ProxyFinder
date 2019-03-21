@@ -15,12 +15,22 @@ Settings::Settings(const QString &fileName, QSettings::Format format, QObject *p
 
 Settings::Settings(QObject *parent) : QSettings(parent)
 {
-    connect(&net, &QNetworkAccessManager::networkAccessibleChanged, this, &Settings::networkAvailableChanged);
     initialize();
 }
 
 Settings::~Settings()
 {
+}
+
+// Not exposed to QML engine
+bool Settings::getRetryFirstTime() const
+{
+    return retryFirstTime;
+}
+
+void Settings::setRetryFirstTime(bool value)
+{
+    retryFirstTime = value;
 }
 
 //! Properties
@@ -41,7 +51,6 @@ void Settings::setFirstTime(bool isFirstTime)
 
 bool Settings::getNetworkAvailable()
 {
-    networkAvailable = net.networkAccessible();
     return networkAvailable;
 }
 
@@ -197,26 +206,61 @@ QString Settings::getOperatingSystem() const
     return operatingSystem;
 }
 
-void Settings::setOperatingSystem(const QString &systemName)
+
+//! Functions
+
+// Slots
+void Settings::updateNetworkAvailable()
 {
-    if (operatingSystem != systemName) {
-        operatingSystem = systemName;
-        emit operatingSystemChanged(systemName);
+    if (net.networkAccessible() == QNetworkAccessManager::Accessible) {
+        setNetworkAvailable(true);
+        timerUpdateNetworkAvailable.setInterval(5000);
+        return;
+    } else {
+        QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+
+        for (auto net : interfaces) {
+
+            QNetworkInterface::InterfaceFlags flags = net.flags();
+            bool isUp = flags.testFlag(QNetworkInterface::IsUp);
+
+            if (isUp &&
+                    net.type() != QNetworkInterface::Loopback &&
+                    net.type() != QNetworkInterface::Ppp &&
+                    net.type() != QNetworkInterface::CanBus &&
+                    net.type() != QNetworkInterface::Phonet) {
+                setNetworkAvailable(true);
+                timerUpdateNetworkAvailable.setInterval(5000);
+                return;
+            }
+        }
     }
+    setNetworkAvailable(false);
+    if (getFirstTime()) {
+        setRetryFirstTime(true);
+    }
+    timerUpdateNetworkAvailable.setInterval(1000);
 }
 
-// Functions
+// Private
 void Settings::initialize()
 {
 #ifdef Q_OS_WIN
-    setOperatingSystem("Windows");
+    operatingSystem = "Windows";
 #endif
 #ifdef Q_OS_LINUX
-    setOperatingSystem("Linux");
+    operatingSystem = "Linux";
 #endif
 #ifdef Q_OS_MACOS
-    setOperatingSystem("MacOS");
+    operatingSystem = "MacOS";
 #endif
+
+    timerUpdateNetworkAvailable.setInterval(1000);
+
+    connect(&timerUpdateNetworkAvailable, &QTimer::timeout, this, &Settings::updateNetworkAvailable);
+    connect(&net, &QNetworkAccessManager::networkAccessibleChanged, [=] {
+        updateNetworkAvailable();
+    });
 
     getFirstTime();
     if (firstTime) {
@@ -246,4 +290,7 @@ void Settings::initialize()
         // Preferences
         getTheme();
     }
+
+    updateNetworkAvailable();
+    timerUpdateNetworkAvailable.start();
 }
